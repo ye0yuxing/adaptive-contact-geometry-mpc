@@ -26,6 +26,43 @@ the first differentiable-geometry/CF combination is made**.
 Frames are aligned by simulation step, with the final pose held after a run
 ends. This is one illustrative case, not an estimate of success rate.*
 
+## Results
+
+On **50 paired initial conditions (seeds 240–289)** with the default settings,
+adaptive geometry increases insertion success from **6% to 92%**, an improvement
+of **86 percentage points**. Both arms use the same initial state for each seed,
+horizon 2, and a maximum of 600 controller steps.
+
+| Controller | Successful trials | Success rate | 95% Wilson interval |
+| --- | ---: | ---: | ---: |
+| Frozen geometry | 3 / 50 | 6% | 2.1–16.2% |
+| Adaptive geometry | 46 / 50 | 92% | 81.2–96.8% |
+
+![Insertion success over 50 paired seeds](results/success.png)
+
+Of the 50 pairs, 43 succeed only with adaptive geometry, 3 succeed with both,
+and 4 fail with both; none succeed only with frozen geometry. Adaptive failures
+are seeds **242, 248, 252, and 263**. The median steps among successful trials
+are 154 for frozen and 76.5 for adaptive; these medians cover different subsets
+of seeds.
+
+All 100 trajectories are included. IPOPT reports an accepted solve on
+28,582/28,582 frozen steps and 6,166/6,228 adaptive steps; finite unsuccessful
+iterates are still executed. The worst reported peg–wall distances over all
+post-action states are −2.813 mm (frozen) and −1.984 mm (adaptive), including
+transient penetration before the final success hold. Physical fingertip
+workspace overshoot exceeds 1 µm in 3 frozen trials and 1 adaptive trial, with
+respective peaks of 0.384 mm and 0.00764 mm.
+
+The [complete trial summary](results/summary.json) records all 100 trial outcomes
+and their diagnostics, together with the configuration, package versions, and
+controller source hashes.
+[Paired statistics](results/analysis.json) are computed from that summary by
+`analyze.py`. The evaluation ran on macOS arm64 using four concurrent workers
+with one numerical-library thread each. Median per-run planning times were
+45.6 ms (frozen) and 54.6 ms (adaptive); these are diagnostics under shared CPU
+load, not an isolated speed benchmark. See the protocol and limitations below.
+
 ## What this project contributes
 
 1. **A concrete diagnosis.** Within a prediction horizon, freezing gaps and
@@ -64,6 +101,9 @@ network calls are needed at runtime.
 python3.11 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
+
+# Recompute the published statistics without running a simulation.
+python analyze.py results/summary.json
 
 # Five-step execution check; too short to assess task success.
 python run.py --seeds 240 --max-steps 5 --output outputs/smoke
@@ -146,6 +186,7 @@ analyze.py     paired statistics and success plot
 render.py      visualization of saved trajectories
 tests/         derivative, controller, simulation, and analysis checks
 docs/          method, related work, attribution, and demo
+results/       complete trial summary, paired statistics, and success plot
 tools/         explicit-file release checker and archive builder
 ```
 

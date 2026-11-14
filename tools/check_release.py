@@ -20,9 +20,10 @@ FILES = (
     "tests/test_core.py", "tools/check_release.py",
     "docs/method.md", "docs/related_work.md", "docs/provenance.md",
     "docs/demo.gif",
+    "results/summary.json", "results/analysis.json", "results/success.png",
 )
 LOCAL_DIRECTORIES = {".git", ".venv", "outputs", "dist", "__pycache__", ".pytest_cache"}
-BINARY_FILES = {"docs/demo.gif"}
+BINARY_FILES = {"docs/demo.gif", "results/success.png"}
 SENSITIVE = {
     "private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
     "GitHub token": re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})\b"),
